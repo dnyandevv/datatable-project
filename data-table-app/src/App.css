@@ -16,6 +16,10 @@
   align-items: center;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .p-paginator-page {
   border-radius: 8px;
   margin: 0 4px;
@@ -45,4 +49,11 @@
   background: white;
   color: #6b7280;
   cursor: pointer;
+}
+
+.column-checkbox-header{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
 }
