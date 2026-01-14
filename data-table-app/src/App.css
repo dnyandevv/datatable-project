@@ -1,0 +1,48 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.p-paginator{
+  display: flex;
+  justify-content: space-between;
+}
+
+.page-info{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.p-paginator-page {
+  border-radius: 8px;
+  margin: 0 4px;
+}
+
+.p-paginator-page.p-highlight {
+  background: #6366f1;
+  color: white;
+}
+
+.p-pagelink{
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  margin: 1px;
+  padding: 1rem 1rem;
+  background: white;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.p-paginator-prev,
+.p-paginator-next {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  margin: 1px;
+  padding: 0.5rem 2rem;
+  background: white;
+  color: #6b7280;
+  cursor: pointer;
+}
