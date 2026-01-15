@@ -11,13 +11,13 @@ import RowInput from './RowInput';
 const API_URL = import.meta.env.VITE_API_URL;
 
 const content : ColDef  [] = [
-  { fileds: 'id', header: 'ID' },
-  { fileds: 'title', header: 'Title' },
-  { fileds: 'place_of_origin', header: 'Place of Origin' },
-  { fileds: 'artist_display', header: 'Artist Display' },
-  { fileds: 'inscriptions', header: 'Inscription', body: (data: ArtData ) => data.inscriptions ?? 'NULL' },
-  { fileds: 'date_start', header: 'Date Start' },
-  { fileds: 'date_end', header: 'Date End' },
+  { field: 'id', header: 'ID' },
+  { field: 'title', header: 'Title' },
+  { field: 'place_of_origin', header: 'Place of Origin' },
+  { field: 'artist_display', header: 'Artist Display' },
+  { field: 'inscriptions', header: 'Inscription', body: (data: ArtData ) => data.inscriptions ?? 'NULL' },
+  { field: 'date_start', header: 'Date Start' },
+  { field: 'date_end', header: 'Date End' },
 ];
 
 export default function DtTable() {
@@ -27,16 +27,18 @@ export default function DtTable() {
     const [loading, setLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
 
+		const [selectionTarget, setSelectionTarget] = useState<number>(0);
+		const [manualSelectedIds, setManualSelectedIds] = useState<Set<number>>(new Set());
+		const [manualDeselectedIds, setManualDeselectedIds] = useState<Set<number>>(new Set());
+		const [selectionStart, setSelectionStart] = useState<number>(0);
+		const totalRows = selectionTarget - manualDeselectedIds.size + manualSelectedIds.size;
+
 
     useEffect(()=>{
-    // setLoading(true);
     fetch(`${API_URL}/artworks?page=${currentPage}&fields=id,title,place_of_origin,artist_display,inscriptions,date_start,date_end`)
     .then((response) => response.json())
     .then((json: apiData) => {
-				const status = json.data.map((item) => ({
-					...item,
-					selected_status: true
-				}))
+				const status = json.data;
         setArt(status);
         setPagination(json.pagination);
         setLoading(false);
@@ -45,52 +47,119 @@ export default function DtTable() {
     });
     }, [currentPage]);
 
+
     function handlePageChange(newPage: number) {
     setCurrentPage(newPage);
     }
-		const selectedRows = art.filter(row => row.selected_status);
-		useEffect(() => {
-			console.log('Selected Rows:', selectedRows);
-		},[art]);
+		console.log(pagination)
 
+	
+	
 		function onSelectAllChange(checked: boolean) {
-			const updatedArt = art.map(item => ({
-				...item,
-				selected_status: checked
-			}));
-			setArt(updatedArt);
+			const newSelected = new Set(manualSelectedIds);
+			const newDeselected = new Set(manualDeselectedIds);
+
+			art.forEach((item, index) => {
+				const mainIndex = (pagination?.offset ?? 0) + index;
+				const isInsideBulkRange = mainIndex <= (selectionStart + selectionTarget) && mainIndex >= selectionStart;
+
+				if (checked) {
+					if (!isInsideBulkRange) {
+						newSelected.add(item.id);
+					}
+					newDeselected.delete(item.id);
+				} else {
+					if (isInsideBulkRange) {
+						newDeselected.add(item.id);
+					}
+					newSelected.delete(item.id);
+				}
+  		});
+			setManualSelectedIds(newSelected);
+			setManualDeselectedIds(newDeselected);
 		}
 
-		function onRowSelectChange(rowData: ArtData) {
-			setArt((prevArt) => prevArt.map((item) => {
-				if (item.id === rowData.id) {
-					return {
-						...item,
-						selected_status: !item.selected_status
-					};
-				}
-				return item;
-			}));
+		
+	
+	function handleBulkSelect(n : number) {
+		const currentOffset = pagination ? pagination.offset : 0;
+		setSelectionStart(currentOffset);
+		setSelectionTarget(n);
+		setManualDeselectedIds(new Set());
+		setManualSelectedIds(new Set());
+		op.current?.hide();
+	}
+
+
+
+	function isRowSelected( rowData: ArtData, index: number):  boolean {
+		if (manualSelectedIds.has(rowData.id)) return true;
+		if (manualDeselectedIds.has(rowData.id)) return false;
+
+		if(pagination ) {
+			const mainIndex = pagination.offset + index;
+			const upperBound = selectionStart + selectionTarget;
+			const isInBulk = selectionStart <= mainIndex && mainIndex < upperBound;
+			// console.log("bulk range:", selectionStart, selectionStart + selectionTarget);
+			if (isInBulk) return true;
 		}
+
+		return false
+	}
+
+	function onRowSelect(rowData: ArtData, index: number) {
+		const isSelected = isRowSelected(rowData, index);
+		const mainIndex = pagination ? pagination.offset + index : index;
+		const upperBound = selectionStart + selectionTarget;
+		const isInBulk = selectionStart <= mainIndex && mainIndex < upperBound;
+		// console.log("bulk range:", selectionStart, selectionStart + selectionTarget);
+
+		if (isSelected){
+			if (isInBulk) {
+				setManualDeselectedIds((prev) => new Set(prev).add(rowData.id));
+			} else {
+				setManualSelectedIds((prev) => {
+					const newSet = new Set(prev);
+					newSet.delete(rowData.id);
+					return newSet;
+				});
+			}
+		}else{
+			if(isInBulk) {
+				setManualDeselectedIds((prev) => {
+					const newSet = new Set(prev);
+					newSet.delete(rowData.id);
+					return newSet;
+				});
+			} else {
+				setManualSelectedIds((prev) => new Set(prev).add(rowData.id));
+			}
+		}
+	}
+
+		const selectionKey = `${selectionTarget}-${manualSelectedIds.size}-${manualDeselectedIds.size}`;
 
     return (
         <>
+						<p>Rows: {totalRows}</p>
             {pagination  &&
                 <>{loading ? <p>Loading data...</p> :
                   <>
                     <DataTable
+											key={selectionKey}
                       value={art} 
 											dataKey="id"
                       stripedRows 
                       lazy
-                      tableStyle={{ minWidth: '50rem' }}							
+                      tableStyle={{ minWidth: '50rem' }}		
+											loading={loading}
                     >
                       <Column 
 												headerStyle={{ width: '3rem' }}
 												header={
 													<div className='column-checkbox-header'>
 														<Checkbox 
-															checked={selectedRows.length === art.length && art.length > 0}
+															checked={art.length > 0 && art.every((row, i) => isRowSelected(row, i))}
 															onChange={(e) => {
 																onSelectAllChange(e.checked ?? false);
 															}}
@@ -100,22 +169,22 @@ export default function DtTable() {
 														></i>
 													</div>
 												}
-												body={(rowData) => (
+												body={(rowData, options) => (
 													<Checkbox 
-														checked={rowData.selected_status}
+														checked={isRowSelected(rowData, options.rowIndex)}
 														onChange={() => {
-															onRowSelectChange(rowData);
+															onRowSelect(rowData, options.rowIndex);
 														}}
 													/>
 												)}
 											></Column>
                       {content.map((coldef) => (
-                        <Column key={coldef.fileds} field={coldef.fileds} header={coldef.header} body={coldef.body}></Column>
+                        <Column key={coldef.field} field={coldef.field} header={coldef.header} body={coldef.body}></Column>
                       ))}
                     </DataTable>
                     <MyPaginator paginationInfo={pagination} pageChange={handlePageChange}/>
 										<OverlayPanel ref={op}>
-											<RowInput onSelect={() => op.current?.hide() } />
+											<RowInput onSelect={handleBulkSelect} />
 										</OverlayPanel>
                   </>
                   }

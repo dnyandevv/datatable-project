@@ -29,7 +29,7 @@ type apiData = {
 export type { apiData };
 
 type ColDef = {
-    fileds: keyof ArtData ;
+    field: keyof ArtData ;
     header: string ;
     body?: (data: ArtData) => React.ReactNode ;
 }

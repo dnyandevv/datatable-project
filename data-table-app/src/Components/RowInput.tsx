@@ -1,16 +1,16 @@
 import { useState } from "react";
 
 interface RowInputProps {
-    onSelect: () => void;
+    onSelect: (n: number) => void;
 }
 
 export default function RowInput(
     { onSelect }: RowInputProps
 ) {
-    const [n, setN] = useState<number | null>(null);
-    function handleSetN(){
+    const [n, setN] = useState<number | null>(0);
+    function handleSetN() {
         setN(n);
-        onSelect();
+        onSelect(n !== null ? n : 0);
     }
     return (
         <>
@@ -30,7 +30,7 @@ export default function RowInput(
                         }}
                     }
                 />
-                <button onClick={handleSetN}>
+                <button onClick={() => handleSetN()} disabled={n === null}>
                     Select
                 </button>
             </div>
