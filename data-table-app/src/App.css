@@ -1,5 +1,4 @@
 #root {
-  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -68,12 +67,49 @@ button:disabled {
   display: flex;
   max-width: 300px;
   flex-direction: column;
+  justify-content: space-between;
   gap: .3rem;
 }
 
+.overlay-div h1{
+    margin: 0%;
+    font-size: 1rem;
+}
+.overlay-div p{
+    margin: 0%;
+    font-size: .75rem;
+}
+
 .row-input{
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
+  width: 60%; 
+  max-width: 150px; 
+  padding: 0.4rem 0.6rem; 
+  border: 2px solid #000;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.total-selected-rows{
+  text-align: left;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.p-overlaypanel {
+    margin: 0%;
+    min-width: 300px;
+    font-size: 1rem;
+}
+
+.overlay-div-selection{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+    height: auto;
+    margin: 0;
+}
+
+.heightt{
+    height: 30px;
 }

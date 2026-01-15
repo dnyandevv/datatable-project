@@ -141,7 +141,7 @@ export default function DtTable() {
 
     return (
         <>
-						<p>Rows: {totalRows}</p>
+						<p className='total-selected-rows'>Rows: {totalRows}</p>
             {pagination  &&
                 <>{loading ? <p>Loading data...</p> :
                   <>
@@ -151,7 +151,7 @@ export default function DtTable() {
 											dataKey="id"
                       stripedRows 
                       lazy
-                      tableStyle={{ minWidth: '50rem' }}		
+                      tableStyle={{ minWidth: '100%' }}		
 											loading={loading}
                     >
                       <Column 

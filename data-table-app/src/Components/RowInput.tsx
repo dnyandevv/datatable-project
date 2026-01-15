@@ -1,3 +1,4 @@
+import { Button } from "primereact/button";
 import { useState } from "react";
 
 interface RowInputProps {
@@ -7,7 +8,7 @@ interface RowInputProps {
 export default function RowInput(
     { onSelect }: RowInputProps
 ) {
-    const [n, setN] = useState<number | null>(0);
+    const [n, setN] = useState<number | null>(null);
     function handleSetN() {
         setN(n);
         onSelect(n !== null ? n : 0);
@@ -15,24 +16,31 @@ export default function RowInput(
     return (
         <>
             <div className="overlay-div">
-                <p>Select Multiple Rows</p>
-                <input
-                    className="row-input"
-                    type="number" 
-                    value={n !== null ? n : ""}
-                    max={100} 
-                    min={0} 
-                    placeholder="Enter N values(Max 100)"
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === "" || (Number(val) <= 100 && Number(val) >= 0)) {
-                            setN(val === "" ? null : Number(val));
-                        }}
-                    }
-                />
-                <button onClick={() => handleSetN()} disabled={n === null}>
-                    Select
-                </button>
+                <h1>Select Multiple Rows</h1>
+                <p>Enter Number of rows to select across pages</p>
+                <div className="overlay-div-selection">    
+                    <input
+                        className="row-input"
+                        type="number" 
+                        value={n !== null ? n : ""}
+                        max={100} 
+                        min={0} 
+                        placeholder="eg.25 (Max 100)"
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "" || (Number(val) <= 100 && Number(val) >= 0)) {
+                                setN(val === "" ? null : Number(val));
+                            }}
+                        }
+                    />
+                   
+                    <Button 
+                        label="Select" 
+                        onClick={handleSetN} 
+                        disabled={n === null}
+                        className="p-pagelink p-paginator-page p-highlight heightt" 
+                    />
+                </div>    
             </div>
         </>
     );
