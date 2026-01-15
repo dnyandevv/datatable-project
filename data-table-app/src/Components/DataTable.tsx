@@ -6,6 +6,7 @@ import MyPaginator from './MyPaginator';
 import type { ArtData } from '../types';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Checkbox } from 'primereact/checkbox';
+import RowInput from './RowInput';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,15 +21,12 @@ const content : ColDef  [] = [
 ];
 
 export default function DtTable() {
-
+		const op = useRef<OverlayPanel>(null);	
     const [art, setArt] = useState<ArtData[]>([]);
     const [pagination, setPagination] = useState<PaginationInfo | null>(null);
-
-
     const [loading, setLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
 
-		const op = useRef<OverlayPanel>(null);		
 
     useEffect(()=>{
     // setLoading(true);
@@ -50,9 +48,7 @@ export default function DtTable() {
     function handlePageChange(newPage: number) {
     setCurrentPage(newPage);
     }
-
 		const selectedRows = art.filter(row => row.selected_status);
-
 		useEffect(() => {
 			console.log('Selected Rows:', selectedRows);
 		},[art]);
@@ -76,6 +72,7 @@ export default function DtTable() {
 				return item;
 			}));
 		}
+
     return (
         <>
             {pagination  &&
@@ -98,12 +95,7 @@ export default function DtTable() {
 																onSelectAllChange(e.checked ?? false);
 															}}
 														/>
-														<i className="pi pi-chevron-down"
-															style={{
-																cursor: 'pointer',
-																fontSize: '0.8rem',
-																color: '#6c757d'
-															}}
+														<i className="pi pi-chevron-down dropdown-icon"
 															onClick={(e) => op.current?.toggle(e)}
 														></i>
 													</div>
@@ -121,21 +113,9 @@ export default function DtTable() {
                         <Column key={coldef.fileds} field={coldef.fileds} header={coldef.header} body={coldef.body}></Column>
                       ))}
                     </DataTable>
-
-
-
-
                     <MyPaginator paginationInfo={pagination} pageChange={handlePageChange}/>
 										<OverlayPanel ref={op}>
-											<div>
-												<p>Select Multiple Rows</p>
-												<input
-													type="number" max={100} min={0} placeholder="Enter N values(Max 100)"
-												/>
-												<button onClick={() => op.current?.hide()}>
-													Select
-												</button>
-											</div>
+											<RowInput onSelect={() => op.current?.hide() } />
 										</OverlayPanel>
                   </>
                   }

@@ -57,3 +57,23 @@ button:disabled {
   gap: 4px;
   justify-content: center;
 }
+
+.dropdown-icon{
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.overlay-div{
+  display: flex;
+  max-width: 300px;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.row-input{
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
