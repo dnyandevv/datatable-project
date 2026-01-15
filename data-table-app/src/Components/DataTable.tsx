@@ -53,16 +53,9 @@ export default function DtTable() {
 
 		const selectedRows = art.filter(row => row.selected_status);
 
-		console.log(art);
-
-		function onSelectionChange(e: { value: ArtData[] }) {
-			const selectedItems = e.value;
-			const updatedArt = art.map(item => ({
-				...item,
-				selected_status: selectedItems.some((selected: ArtData) => selected.id === item.id)
-			}));
-			setArt(updatedArt);
-		}
+		useEffect(() => {
+			console.log('Selected Rows:', selectedRows);
+		},[art]);
 
 		function onSelectAllChange(checked: boolean) {
 			const updatedArt = art.map(item => ({
@@ -72,6 +65,17 @@ export default function DtTable() {
 			setArt(updatedArt);
 		}
 
+		function onRowSelectChange(rowData: ArtData) {
+			setArt((prevArt) => prevArt.map((item) => {
+				if (item.id === rowData.id) {
+					return {
+						...item,
+						selected_status: !item.selected_status
+					};
+				}
+				return item;
+			}));
+		}
     return (
         <>
             {pagination  &&
@@ -107,8 +111,8 @@ export default function DtTable() {
 												body={(rowData) => (
 													<Checkbox 
 														checked={rowData.selected_status}
-														onChange={(e) => {
-															onSelectionChange(rowData);
+														onChange={() => {
+															onRowSelectChange(rowData);
 														}}
 													/>
 												)}
@@ -126,7 +130,7 @@ export default function DtTable() {
 											<div>
 												<p>Select Multiple Rows</p>
 												<input
-													type="number"
+													type="number" max={100} min={0} placeholder="Enter N values(Max 100)"
 												/>
 												<button onClick={() => op.current?.hide()}>
 													Select
